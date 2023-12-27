@@ -1,6 +1,5 @@
 import "./App.css";
 import { UserContextProvider } from "./context/UserContext";
-// import { Routes, Route } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import CreatePage from "./pages/Createpage";
@@ -19,14 +18,14 @@ function App() {
             <Route index element={<Indexpage />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="create" element={<CreatePage />} />
+            <Route path="post" element={<CreatePage />} />
             <Route path="post/:id" element={<Post />} />
             <Route path="edit/:id" element={<Editpage />} />
-            <Route path="Postpage" element={<Postpage/>}/>
+            <Route path="Postpage/:id" element={<Postpage/>}/>
           </Route>
         </Routes>
       </Router>
-    </UserContextProvider>
+    </UserContextProvider>  
   );
 }
 

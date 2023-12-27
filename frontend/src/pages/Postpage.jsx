@@ -1,34 +1,59 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import {useContext, useEffect, useState} from 'react'
+import { useParams ,Link} from 'react-router-dom'
+import {UserContext} from "../context/UserContext"
+import { format } from "date-fns";
+const baseURL = import.meta.env.VITE_BASE_URL;
 
-const Postpage = () => {
+const PostPage = () => {
+  const [postInfo , setPostInfo] = useState(null)
+  const {userInfo}  = useContext(UserContext)
+  const {id} = useParams()
+  useEffect(() => {
+    fetch(`${baseURL}/posts/${id}`).then((response) => {
+      response.json().then((postInfo) => {
+        setPostInfo(postInfo);
+      });
+    });
+
+  }, [id]);
+  if(!postInfo) return "";
   return (
     <div className=" post-page">
-      <h1>แปรขยะพลาสติกเป็นบล็อกปูพื้น</h1>
-      <time> 12 December 2023</time>
+      <h1>{postInfo.title}</h1>
+      <time>{format(new Date(postInfo.createdAt),"dd MM yyyy HH:MM")}</time>
       <p>
         <Link>
-          <a className="auth">ไทยรัฐ</a>
+          <div className="auth"> By: {postInfo.author.username}</div>
         </Link>
       </p>
-      <img
-        src="https://static.thairath.co.th/media/dFQROr7oWzulq5FZYANdwnAt3GO5mBAEgucXrAzoJvwwQ0tnTanbK9L5jIo6RcXS7js.webp"
-        alt=""
-      />
-      <p className="summary">
-        “ขยะพลาสติก” ถือเป็นปัญหาที่ส่งผลกระทบรุนแรงต่อสิ่งแวดล้อมของโลก
-        ที่ผ่านมาประเทศไทยได้ชื่อว่ามีปริมาณขยะพลาสติกติดอันดับ 5 ของโลก
-        ในแต่ละปีมีปริมาณขยะพลาสติกมากกว่า 2 ล้านตัน
-        ปัญหาเหล่านี้นอกจากจะพบมากในกลุ่มครัวเรือนแล้ว
-        ตามแหล่งท่องเที่ยวสำคัญๆของประเทศ
-        ซึ่งมีนักท่องเที่ยวอยู่รวมกันเป็นจำนวนมาก ยิ่งก่อให้เกิดปัญหาเรื้อรัง
-        จากปัญหาดังกล่าวทำให้เกิดการวิจัยการนำเอาขยะพลาสติกกลับมาใช้ประโยชน์อีกครั้ง
-        ด้วยการนำมาทำบล็อกปูพื้นถนน คณะวิทยาศาสตร์และเทคโนโลยี ม.ราชภัฏเชียงใหม่
-        เริ่มทำการวิจัยเรื่องนี้อย่างจริงจังจนประสบความสำเร็จ
-        แล้วนำไปถ่ายทอดให้กับหน่วยงานองค์กรปกครองส่วนท้องถิ่นนำไปใช้ให้เกิดประโยชน์เพื่อลดปัญหาขยะ
-      </p>
-    </div>
-  );
-};
+      {userInfo?.id === postInfo.author._id && (
+        <div className="edit-row">
+          <Link className="edit-btn" to={`/edit/${postInfo._id}`}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
 
-export default Postpage;
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+              />
+            </svg>
+            Edit
+          </Link>
+        </div>
+      )}
+      <img src={`${baseURL}/${postInfo.cover}`} alt="" />
+      <div className="content" dangerouslySetInnerHTML={{__html:postInfo.content}}>
+
+       </div>
+    </div>
+  )
+}
+
+export default PostPage

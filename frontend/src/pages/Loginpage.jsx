@@ -1,134 +1,182 @@
-import Registerpage from './Registerpage';
-import { Navigate } from 'react-router-dom';
-import { useState } from 'react';
-import * as React from 'react';
-// import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-// import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import {  ThemeProvider } from '@mui/material/styles';
-import { createTheme } from "@mui/material/styles";
-import { userContext } from '../context/UserContext';
-const  baseURL = import.meta.env.VITE_BASE_URL;
-const theme = createTheme({
-  palette: {
-    primary: {
-      light: "#757ce8",
-      main: "#2196f3",
-      dark: "#0d47a1",
-      contrastText: "#fff",
-    },
-    secondary: {
-      light: "#ff7961",
-      main: "#f44336",
-      dark: "#ba000d",
-      contrastText: "#000",
-    },
-  },
-});
+import React, { useContext, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
+const baseURL = import.meta.env.VITE_BASE_URL;
 
-export default function Loginpage() {
-  
-  const [username,setUsername] = useState("")
-  const [password,setPassword] = useState("")  
-  const [redirect,setRedirect] = useState("")
-  const{ setUserInfo} = useContext(userContext)
-  const login = async ()=> {
+const LoginPage = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [redirect, setRedirect] = useState(false);
+  const { setUserInfo } = useContext(UserContext);
+  const [error, setError] = useState(null);
+
+  const login = async (e) => {
+    console.log(`${baseURL}/login`);
     e.preventDefault();
-    const response = await fetch (`${baseURL}/login`,{
-      method:"POST",
-      body:JSON.stringify({username,password}),
-      headers:{"Content-Type":"application/json"},
-      credentials:"include"
-    })
-    if(response.ok){
-      response.json().then((userInfo)=>{
-        setUserInfo(userInfo);
-        setRedirect(true);
-      })
-    }else{
-      alert("Wrong Credentials !!!")
+
+    try {
+      const response = await fetch(`${baseURL}/login`, {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+        headers: { "Content-Type": "application/json" },
+        credentials:"include",
+      });
+      console.log(username,password);
+
+      if (!response.ok) {
+        throw new Error(`Login failed with status ${response.status}`);
+      }
+
+      const userInfo = await response.json();
+      setUserInfo(userInfo);
+      setRedirect(true);
+    } catch (error) {
+      // console.error("Login error:", error.message);
+      setError("Invalid username or password. Please try again.");
     }
-  }
-  if(redirect){
-    return <Navigate to={"/"}/>
+  };
+
+  if (redirect) {
+    return <Navigate to="/" />;
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Typography component="h1" variant="h5" >
-            Login
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Username"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              onChange={(e)=> setUsername(e.target.value)}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              onChange={(e)=> setPassword(e.target.value)}
-              autoComplete="current-password"
-            />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Login
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="/Register" variant="body2">
-                  {"Don't have an account? Sign Up"}
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
-        </Box>
-        {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
-      </Container>
-    </ThemeProvider>
+    <div>
+      <div className="form">
+        <div className="form-toggle"></div>
+        <div className="form-panel one">
+          <div className="form-header">
+            <h1>Account Login</h1>
+          </div>
+          <div className="form-content">
+            <form onSubmit={login}>
+              <div className="form-group">
+                <label htmlFor="username">Username</label>
+                <input
+                  id="username"
+                  type="text"
+                  name="username"
+                  required="required"
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  required="required"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-remember">
+                  <input type="checkbox" />
+                  Remember Me
+                </label>
+                <a className="form-recovery" href="#">
+                  Forgot Password?
+                </a>
+              </div>
+              <div className="form-group">
+                <button type="submit">Log In</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      {/* <div class="pen-footer"><a href="https://www.behance.net/gallery/30478397/Login-Form-UI-Library" target="_blank"><i class="material-icons">arrow_backward</i>View on Behance</a><a href="https://github.com/andyhqtran/UI-Library/tree/master/Login%20Form" target="_blank">View on Github<i class="material-icons">arrow_forward</i></a></div> */}
+    </div>
   );
-}
+};
+
+export default LoginPage;
+
+// --------------------------------------------------------
+// import React from "react";
+// import { useContext, useState } from "react";
+// import { Navigate } from "react-router-dom";
+// import { UserContext } from "../context/UserContext";
+
+// const baseURL = import.meta.env.VITE_BASE_URL;
+
+// const LoginPage = () => {
+//   const [username, setUsername] = useState("")
+//   const [password, setPassword] = useState("")
+//   const [redirect, setRedirect] = useState(false)
+//   const {setUserInfo} = useContext(UserContext)
+
+//   const login = async (e) =>{
+//     e.preventDefault()
+//     const response = await fetch(`${baseURL}/login`, {
+//       method: "POST",
+//       body: JSON.stringify({ username, password }),
+//       headers: { "Content-Type": "application/json" },
+//       credentials:"include"
+//     })
+//     if (response.ok) {
+//       response.json().then((userInfo) =>{
+//         setUserInfo(userInfo);
+//         setRedirect(true)
+//         console.log("asdwasdwd");
+//       })
+//     }
+//   }
+//   if (redirect) {
+//     return <Navigate to ="/"/>
+//   }
+
+//   return (
+//     <div>
+//       <div className="form">
+//         <div className="form-toggle"></div>
+//         <div className="form-panel one">
+//           <div className="form-header">
+//             <h1>Account Login</h1>
+//           </div>
+//           <div className="form-content">
+//             <form onSubmit={login} >
+//               <div className="form-group">
+//                 <label htmlFor="username">Username</label>
+//                 <input
+//                   id="username"
+//                   type="text"
+//                   name="username"
+//                   required="required"
+//                   onChange={(e) => setUsername(e.target.value)}
+//                 />
+//               </div>
+//               <div className="form-group">
+//                 <label htmlFor="password">Password</label>
+//                 <input
+//                   id="password"
+//                   type="password"
+//                   name="password"
+//                   required="required"
+//                   onChange={(e) => setPassword(e.target.value)}
+//                 />
+//               </div>
+//               <div className="form-group">
+//                 <label className="form-remember">
+//                   <input type="checkbox" />
+//                   Remember Me
+//                 </label>
+//                 <a className="form-recovery" href="#">
+//                   Forgot Password?
+//                 </a>
+//               </div>
+//               <div className="form-group">
+//                 <button type="submit" >Log In</button>
+//               </div>
+//             </form>
+//           </div>
+//         </div>
+//       </div>
+//       {/* <div class="pen-footer"><a href="https://www.behance.net/gallery/30478397/Login-Form-UI-Library" target="_blank"><i class="material-icons">arrow_backward</i>View on Behance</a><a href="https://github.com/andyhqtran/UI-Library/tree/master/Login%20Form" target="_blank">View on Github<i class="material-icons">arrow_forward</i></a></div> */}
+//     </div>
+//   );
+// };
+
+// export default LoginPage;

@@ -1,44 +1,70 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
+const baseURL = import.meta.env.VITE_BASE_URL;
 
-const Post = () => {
+const Post = ({_id, title, summary, cover, author, createdAt }) => {
   return (
+    <>
+      <div className="blog-card">
+        <div className="meta">
+          <div className="photo">
+            <Link to="">
+              <img src={`${baseURL}/${cover}`} alt="" />
+            </Link>
+          </div>
+          <ul className="details">
+            <li className="author">
+              <Link to="#"> {author.username}</Link>
+            </li>
+            
+            {/* <time> {format(new Date(createdAt), "dd MMMM yyyy HH:MM")} </time> */}
+            <li className="date">{format(new Date(createdAt), "dd MMMM yyyy")}</li>
 
-    <div className="post">
-      <div className="image">
-        <Link>
-          <img
-            src="https://static.thairath.co.th/media/dFQROr7oWzulq5FZYANdwnAt3GO5mBAEgucXrAzoJvwwQ0tnTanbK9L5jIo6RcXS7js.webp"
-            alt=""
-          />
-        </Link>
+          </ul>
+        </div>
+        <div className="description">
+          <Link>
+            <h2>{title}</h2>
+          </Link>
+          {/* <h1>แปรขยะพลาสติกเป็นบล็อกปูพื้น</h1> */}
+          <p style={{ overflow: "hidden" }}>{summary}</p>
+          <p className="read-more">
+          <Link to={`Postpage/${_id}`}>Read More</Link>
+          </p>
+        </div>
       </div>
-      <div className="textts">
-        <Link>
-          <h2>แปรขยะพลาสติกเป็นบล็อกปูพื้น</h2>
-        </Link>
-        <p>
-          <a href="" className="author">
-            ไทยรัฐ
-          </a>
-        </p>
-          <time>11 aa 2202 </time>
-        <p className="summary">
-          “ขยะพลาสติก” ถือเป็นปัญหาที่ส่งผลกระทบรุนแรงต่อสิ่งแวดล้อมของโลก
-          ที่ผ่านมาประเทศไทยได้ชื่อว่ามีปริมาณขยะพลาสติกติดอันดับ 5 ของโลก
-          ในแต่ละปีมีปริมาณขยะพลาสติกมากกว่า 2 ล้านตัน
-          ปัญหาเหล่านี้นอกจากจะพบมากในกลุ่มครัวเรือนแล้ว
-          ตามแหล่งท่องเที่ยวสำคัญๆของประเทศ
-          ซึ่งมีนักท่องเที่ยวอยู่รวมกันเป็นจำนวนมาก ยิ่งก่อให้เกิดปัญหาเรื้อรัง
-          จากปัญหาดังกล่าวทำให้เกิดการวิจัยการนำเอาขยะพลาสติกกลับมาใช้ประโยชน์อีกครั้ง
-          ด้วยการนำมาทำบล็อกปูพื้นถนน คณะวิทยาศาสตร์และเทคโนโลยี
-          ม.ราชภัฏเชียงใหม่
-          เริ่มทำการวิจัยเรื่องนี้อย่างจริงจังจนประสบความสำเร็จ
-          แล้วนำไปถ่ายทอดให้กับหน่วยงานองค์กรปกครองส่วนท้องถิ่นนำไปใช้ให้เกิดประโยชน์เพื่อลดปัญหาขยะ
-        </p>
-      </div>
-    </div>
+    </>
   );
 };
-
 export default Post;
+
+// import React from "react";
+// iport { Link } from "react-router-dom";
+// import { format } from "date-fns";
+// const baseURL = import.meta.env.VITE_BASE_URL;
+
+// const Post = ({ cover, title, author, createdAt, summary }) => {
+//   console.log(cover, author);
+//   return (
+//     <div className="post">
+//       <div className="image">
+//         <Link>
+//           <img src={`${baseURL}/${cover}`} alt="" />
+//         </Link>
+//       </div>
+//       <div className="texts">
+//         <Link>
+//           <h2>{title}</h2>
+//         </Link>
+//         <p className="info">
+//           <a className="author"> {author.username} </a>
+//           <time> {format(new Date(createdAt), "dd MMMM yyyy HH:MM")} </time>
+//         </p>
+//         <p className="summary">{summary}</p>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Post;
