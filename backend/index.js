@@ -2,11 +2,13 @@ const express = require("express");
 const cors = require("cors");
 const { default: mongoose } = require("mongoose");
 require("dotenv").config();
+
 const bcrypt = require("bcryptjs");
 const User = require("./models/User");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const uploadMiddleware = multer({ dest: "upload/" });
+
 const fs = require("fs");
 const post = require("./models/Post");
 const cookieParser = require("cookie-parser");
@@ -40,6 +42,7 @@ app.post("/register", async (req, res) => {
     res.status(400).json(error);
   }
 });
+
 // login
 const secret = process.env.SECRET;
 app.post("/login", async (req, res) => {
@@ -48,10 +51,10 @@ app.post("/login", async (req, res) => {
   if (userDoc) {
     const isMatchPassword = bcrypt.compareSync(password, userDoc.password);
     if (isMatchPassword) {
-      jwt.sign({ username, id: userDoc.id }, secret, (err, token) => {
+      jwt.sign({ username, id: userDoc._id }, secret, (err, token) => {
         if (err) throw err;
         res.cookie("token", token).json({
-          id: userDoc.id,
+          id: userDoc._id,
           username,
         });
       });
@@ -115,6 +118,62 @@ app.get("/posts/:id", async (req, res) => {
   const postDoc = await post.findById(id).populate("author", ["username"]);
   res.json(postDoc);
 });
+
+// Edit
+app.put("/post", uploadMiddleware.single("file"), async (req, res) => {
+  let newPath = null;
+  if (req.file) {
+    const { originalname, path } = req.file;
+    const parts = originalname.split(".");
+    const ext = parts[parts.length - 1];
+    newPath = path + "." + ext;
+    fs.renameSync(path, newPath);
+  }
+
+  const { token } = req.cookies;
+  jwt.verify(token, secret, async (err, info) => {
+    if (err) throw err;
+
+    const { id, title, summary, content } = req.body;
+    const postDoc = await post.findById(id);
+
+    if (!postDoc) {
+      return res.status(404).json("Post not found");
+    }
+
+    const isAuthor = JSON.stringify(postDoc.author) === JSON.stringify(info.id);
+    if (!isAuthor) {
+      return res.status(400).json("You can't do it");
+    }
+
+    const updatedPost = await post.findByIdAndUpdate(id, {
+      title,
+      summary,
+      content,
+      cover: newPath ? newPath : postDoc.cover,
+    }, { new: true });
+
+    res.json(updatedPost);
+  });
+});
+
+//Delete 
+app.delete("/posts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedPost = await post.findByIdAndDelete(id);
+
+    if (deletedPost) {
+      res.json({ message: "Post deleted successfully", deletedPost });
+    } else {
+      res.status(404).json({ message: "Post not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting post:", error.message);
+    res.status(500).json("Internal Server Error");
+  }
+});
+
 
 
 const PORT = process.env.PORT;
